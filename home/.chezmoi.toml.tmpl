@@ -1,0 +1,6 @@
+{{- $email := promptStringOnce . "email" "Git email" "benjamin@dierottlers.de" -}}
+{{- $signCommits := promptBoolOnce . "signCommits" "Sign git commits on this machine (needs the GPG key present)" -}}
+
+[data]
+    email = {{ $email | quote }}
+    signCommits = {{ $signCommits }}

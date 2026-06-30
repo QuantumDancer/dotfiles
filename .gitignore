@@ -1,0 +1,5 @@
+# Machine-local mise overrides never get committed.
+*.local.toml
+mise.local.toml
+
+.DS_Store

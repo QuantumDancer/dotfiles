@@ -1,0 +1,11 @@
+# ~/.zprofile — managed by chezmoi. Login-shell environment bootstrap.
+
+{{- if eq .chezmoi.os "darwin" }}
+eval "$(/opt/homebrew/bin/brew shellenv zsh)"
+
+# OrbStack CLI integration (added by OrbStack; harmless if removed).
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+{{- end }}
+{{- if eq .chezmoi.os "linux" }}
+[ -d /home/linuxbrew/.linuxbrew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+{{- end }}

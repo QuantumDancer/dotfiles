@@ -1,0 +1,68 @@
+# ~/.tmux.conf — managed by chezmoi.
+
+# Prefix is Ctrl-a
+set -g prefix C-a
+unbind C-b
+
+set -g mouse on
+
+# Sort sessions by name (https://unix.stackexchange.com/a/615565)
+bind s choose-tree -Zs -O name
+
+# Easy-to-remember split pane commands
+bind | split-window -h
+bind - split-window -v
+unbind '"'
+unbind %
+
+# Move between panes with vim keys
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+# Move between windows with vim keys
+bind -r C-h select-window -t :-
+bind -r C-l select-window -t :+
+bind-key C-a last-window
+
+# Resize panes with vim keys
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# Switch to last session
+bind-key L switch-client -l
+
+# tmux-sessionizer
+bind-key -r f run-shell "tmux neww ~/.local/scripts/tmux-sessionizer"
+
+# Plugins
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'catppuccin/tmux'
+
+# Catppuccin — loaded explicitly before the status bar so theme vars exist.
+set -g @catppuccin_flavour 'macchiato'
+run ~/.tmux/plugins/catppuccin/tmux/catppuccin.tmux
+set -g status-left ""
+set -g status-right '#[fg=#{@thm_crust},bg=#{@thm_teal}] session: #S '
+set -g status-right-length 100
+
+# Vim copy mode
+setw -g mode-keys vi
+bind-key -T copy-mode-vi v send-keys -X begin-selection
+bind-key -T copy-mode-vi V send-keys -X select-line
+bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
+bind-key -T copy-mode-vi Escape send-keys -X cancel
+bind p paste-buffer
+# Copy to the system clipboard (platform-specific provider).
+{{- if eq .chezmoi.os "darwin" }}
+bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"
+{{- else }}
+bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "wl-copy"
+{{- end }}
+
+# Keep this at the very bottom: initialize TPM.
+run '~/.tmux/plugins/tpm/tpm'

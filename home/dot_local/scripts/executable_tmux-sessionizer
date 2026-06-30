@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# tmux-sessionizer — fuzzy-pick a project directory and open/switch to a tmux
+# session named after it. Origin: https://github.com/edr3x/tmux-sessionizer
+#
+# Search roots are read from ~/.config/tmux-sessionizer/paths (one dir per line,
+# leading ~ expanded), falling back to ~/Code. This keeps host-specific project
+# layouts out of the script itself.
+
+paths_file="${XDG_CONFIG_HOME:-$HOME/.config}/tmux-sessionizer/paths"
+
+if [[ $# -eq 1 ]]; then
+    selected=$1
+else
+    if [[ -f $paths_file ]]; then
+        mapfile -t roots < <(grep -vE '^\s*$' "$paths_file" | sed "s|^~|$HOME|")
+    else
+        roots=("$HOME/Code")
+    fi
+    selected=$(find "${roots[@]}" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | fzf)
+fi
+
+[[ -z $selected ]] && exit 0
+
+selected_name=$(basename "$selected" | tr . _)
+tmux_running=$(pgrep tmux)
+
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+    tmux new-session -s "$selected_name" -c "$selected"
+    exit 0
+fi
+
+if ! tmux has-session -t="$selected_name" 2>/dev/null; then
+    tmux new-session -ds "$selected_name" -c "$selected"
+fi
+
+if [[ -z $TMUX ]]; then
+    tmux attach -t "$selected_name"
+else
+    tmux switch-client -t "$selected_name"
+fi

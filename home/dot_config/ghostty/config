@@ -1,0 +1,6 @@
+theme = Catppuccin Mocha
+font-family = FiraCode Nerd Font Mono Ret
+font-size = 14
+scrollback-limit = 10000
+mouse-hide-while-typing = true
+window-decoration = false
