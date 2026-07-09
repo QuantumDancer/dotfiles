@@ -56,11 +56,25 @@ devcontainers/               # (Phase 3) dev container base image + templates
 
 ## Usage
 
-Fresh machine:
+Fresh machine. `git` is the one prerequisite you must install yourself — you
+need it to clone the repo that contains `bootstrap.sh`. The script installs the
+rest (`curl`, `zsh`, mise, chezmoi, oh-my-zsh) via the detected package manager.
+
+An SSH key authorised with GitHub must already exist, since the nvim external is
+cloned over SSH (and this repo may be private). Agent forwarding works too.
 
 ```sh
-git clone <this-repo> ~/Code/PortableDevSetup
+sudo dnf install -y git          # or apt/pacman/apk/brew
+git clone git@github.com:QuantumDancer/dotfiles.git ~/Code/PortableDevSetup
 ~/Code/PortableDevSetup/bootstrap.sh
+```
+
+`bootstrap.sh` prompts for your git email and whether to sign commits. Extra
+arguments are forwarded to `chezmoi init`, which is how to drive it unattended:
+
+```sh
+./bootstrap.sh --no-tty --promptString "Git email=you@example.com" \
+               --promptBool "Sign git commits...=true"
 ```
 
 Existing machine, preview before applying:
