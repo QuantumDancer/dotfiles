@@ -2,4 +2,8 @@
 *.local.toml
 mise.local.toml
 
+# Host-specific notes (e.g. homelab runbooks). This repo is meant to be
+# open-sourced, so anything naming internal infrastructure stays untracked.
+*.local.md
+
 .DS_Store
