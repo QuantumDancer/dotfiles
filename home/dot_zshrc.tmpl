@@ -65,3 +65,9 @@ if [[ -z $TMUX ]]; then
   export TERM=xterm-256color
 fi
 {{- end }}
+
+# --- machine-local ------------------------------------------------------
+# Anything host-specific: hardware aliases, employer paths, toolchains this
+# repo doesn't manage (cargo, bun, kubebuilder...). Unmanaged and untracked,
+# so it never lands in this public repo. Sourced last so it can override.
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

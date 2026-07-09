@@ -87,7 +87,11 @@ chezmoi execute-template < home/dot_zshrc.tmpl
 
 ### Known follow-ups
 
-- Add a `gpg.ssh.allowedSignersFile` so local `git log --show-signature`
-  verifies commits (optional; GitHub's Verified badge works without it).
-- Decide which Kubernetes/IaC tools move from brew/dnf into mise.
+- Decide which Kubernetes/IaC tools move from brew/dnf into mise. Candidates
+  currently living in `~/.zshrc.local` on some hosts: rust/cargo, bun,
+  kubebuilder, kubescape.
 - Retire the superseded old chezmoi source at `~/.local/share/chezmoi`.
+
+Deliberately *not* doing: `gpg.ssh.allowedSignersFile`. It only enables local
+verification (`git log --show-signature`, `git verify-commit`, `%G?`), which we
+never use — GitHub/GitLab verify against the uploaded key, not that file.
