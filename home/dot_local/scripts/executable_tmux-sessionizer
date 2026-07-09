@@ -12,7 +12,17 @@ if [[ $# -eq 1 ]]; then
     selected=$1
 else
     if [[ -f $paths_file ]]; then
-        mapfile -t roots < <(grep -vE '^\s*$' "$paths_file" | sed "s|^~|$HOME|")
+        # The one-liner below is what this loop replaces:
+        #     mapfile -t roots < <(grep -vE '^\s*$' "$paths_file" | sed "s|^~|$HOME|")
+        # `mapfile` is a bash 4 builtin, and macOS still ships bash 3.2.57 as
+        # /bin/bash — Apple froze it there because bash 4 is GPLv3, so a newer
+        # system bash is never coming. Restoring the one-liner is only safe once
+        # every host this repo targets resolves `env bash` to bash 4+ (e.g. a
+        # Homebrew bash earlier on PATH than /bin/bash).
+        roots=()
+        while IFS= read -r root; do
+            roots+=("$root")
+        done < <(grep -vE '^\s*$' "$paths_file" | sed "s|^~|$HOME|")
     else
         roots=("$HOME/Code")
     fi
