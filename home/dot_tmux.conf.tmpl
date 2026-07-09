@@ -43,9 +43,13 @@ set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'tmux-plugins/tmux-sensible'
 set -g @plugin 'catppuccin/tmux'
 
-# Catppuccin — loaded explicitly before the status bar so theme vars exist.
-set -g @catppuccin_flavour 'macchiato'
-run ~/.tmux/plugins/catppuccin/tmux/catppuccin.tmux
+# Catppuccin — sourced explicitly (rather than left to tpm at the bottom) so the
+# @thm_* colour vars exist by the time status-right below references them.
+# The flavor must be set before the plugin loads. Note the paths/spelling:
+# tpm clones a plugin into a dir named after its *repo*, so catppuccin/tmux
+# lands in ~/.tmux/plugins/tmux, and catppuccin v2 reads @catppuccin_flavor (US).
+set -g @catppuccin_flavor 'macchiato'
+run ~/.tmux/plugins/tmux/catppuccin.tmux
 set -g status-left ""
 set -g status-right '#[fg=#{@thm_crust},bg=#{@thm_teal}] session: #S '
 set -g status-right-length 100
