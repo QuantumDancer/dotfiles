@@ -2,6 +2,14 @@
 
 # --- PATH ---------------------------------------------------------------
 export PATH="$HOME/.local/scripts:$HOME/.local/bin:$PATH"
+{{- if eq .chezmoi.os "linux" }}
+
+# Linuxbrew lives here rather than in .zprofile: Fedora's terminals start
+# non-login shells, so .zprofile would only run inside tmux and brew would
+# vanish from a bare terminal window. It must also precede `mise activate`
+# below -- brew ships its own go, and whichever is sourced last wins PATH.
+[ -d /home/linuxbrew/.linuxbrew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+{{- end }}
 
 # --- oh-my-zsh ----------------------------------------------------------
 export ZSH="$HOME/.oh-my-zsh"

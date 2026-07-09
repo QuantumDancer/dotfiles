@@ -7,5 +7,6 @@ eval "$(/opt/homebrew/bin/brew shellenv zsh)"
 source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 {{- end }}
 {{- if eq .chezmoi.os "linux" }}
-[ -d /home/linuxbrew/.linuxbrew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# Nothing here on Linux: Linuxbrew is sourced from .zshrc instead, because
+# Fedora's terminal emulators start non-login shells that never read .zprofile.
 {{- end }}
