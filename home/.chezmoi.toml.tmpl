@@ -1,5 +1,10 @@
 {{- $email := promptStringOnce . "email" "Git email" "benjamin@dierottlers.de" -}}
-{{- $signCommits := promptBoolOnce . "signCommits" "Sign git commits on this machine (needs the GPG key present)" -}}
+{{- $signCommits := promptBoolOnce . "signCommits" "Sign git commits on this machine (needs an ssh signing key at ~/.ssh/id_ed25519)" -}}
+
+# Persist the source dir so plain `chezmoi apply`/`diff` (and re-runs after
+# bootstrap) use this repo. Without it, chezmoi's --source flag is not saved and
+# bare commands silently fall back to the default ~/.local/share/chezmoi.
+sourceDir = {{ .chezmoi.sourceDir | quote }}
 
 [data]
     email = {{ $email | quote }}

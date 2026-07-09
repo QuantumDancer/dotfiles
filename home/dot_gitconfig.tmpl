@@ -1,7 +1,13 @@
 [user]
 	name = Benjamin Rottler
 	email = {{ .email }}
-	signingkey = E000788094F20297
+	# SSH signing (not GPG): reuses the forwarded ssh-agent, so signing keeps
+	# working inside dev containers where gpg-agent forwarding is unreliable.
+	# Add this public key to GitHub as a *signing* key for the Verified badge.
+	signingkey = ~/.ssh/id_ed25519.pub
+
+[gpg]
+	format = ssh
 
 [branch]
     autosetuprebase = always

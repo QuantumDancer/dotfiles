@@ -48,7 +48,11 @@ devcontainers/               # (Phase 3) dev container base image + templates
 - **mise owns dev CLIs & runtimes** — replaces `bob`, `nvm` and ad-hoc
   cargo/go/bun PATH shims. Homebrew/dnf keep only GUI apps, fonts and system
   services.
-- **This repo is the chezmoi source dir.**
+- **This repo is the chezmoi source dir**, pinned via `sourceDir` in the
+  generated config so bare `chezmoi apply`/`diff` never fall back to the default
+  `~/.local/share/chezmoi`.
+- **Commit signing uses SSH keys** (`gpg.format = ssh`, `~/.ssh/id_ed25519.pub`),
+  not GPG — it reuses the forwarded ssh-agent and works inside containers.
 
 ## Usage
 
@@ -77,11 +81,13 @@ chezmoi execute-template < home/dot_zshrc.tmpl
 
 - **Phase 0** — capture & converge existing configs into chezmoi templates. ✅
 - **Phase 1** — mise host baseline: install mise, migrate tools off brew/bob/nvm.
+  ✅ *(applied & validated on macOS; Framework/VM pending)*
 - **Phase 2** — VM bring-up from a clean box via `bootstrap.sh`.
 - **Phase 3** — dev container base image (mise baked in) + DevPod templates.
 
 ### Known follow-ups
 
-- Migrate git commit signing from GPG to SSH signing (`gpg.format = ssh`) so it
-  reuses the forwarded ssh-agent and works inside containers.
+- Add a `gpg.ssh.allowedSignersFile` so local `git log --show-signature`
+  verifies commits (optional; GitHub's Verified badge works without it).
 - Decide which Kubernetes/IaC tools move from brew/dnf into mise.
+- Retire the superseded old chezmoi source at `~/.local/share/chezmoi`.
