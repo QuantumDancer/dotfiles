@@ -3,6 +3,12 @@
 # Machine-local additions/overrides go in ~/.config/mise/config.local.toml (gitignored).
 
 [tools]
+# chezmoi manages this very file, so it must declare itself: bootstrap.sh runs
+# `mise use -g chezmoi` (writing this file), then `chezmoi init --apply`
+# overwrites it. Without this line chezmoi drops out of mise's tool list and the
+# next `mise prune` removes its shim.
+chezmoi = "latest"
+
 # Editor — binary from mise; the AstroNvim config comes from the external repo
 # (see .chezmoiexternal.toml). The Framework currently runs a 0.12 pre-release;
 # pin a specific version here if the config ever needs more than the latest stable.
