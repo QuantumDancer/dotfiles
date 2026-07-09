@@ -1,9 +1,12 @@
 # Repos provisioned by chezmoi on `apply`, kept out of this repo so they stay
 # independently versioned upstream. refreshPeriod limits how often chezmoi re-pulls.
 
+# Cloned over SSH (unlike the third-party repos below) because this one is ours
+# and we push to it. Each machine registers its own key with GitHub before
+# bootstrap runs, so the key is always present by the time chezmoi clones.
 [".config/nvim"]
     type = "git-repo"
-    url = "https://github.com/QuantumDancer/astronvim_config.git"
+    url = "git@github.com:QuantumDancer/astronvim_config.git"
     refreshPeriod = "168h"
 
 [".tmux/plugins/tpm"]
