@@ -28,6 +28,13 @@ python = "3.14"
 # tmux-256color terminfo entry (ncurses-term on RHEL minimal).
 tmux = "latest"
 
+# The coding agent the dev VM exists to run. Resolves to aqua:anthropics/claude-code
+# (a native binary), deliberately not npm:@anthropic-ai/claude-code: npm globals live
+# inside the active mise node install and silently vanish on a node bump. Upgrade with
+# `mise up claude-code`; claude's own autoupdater cannot write into mise's install dir,
+# so .zshrc turns it off.
+claude-code = "latest"
+
 # Core terminal CLIs
 ripgrep = "latest"
 fd = "latest"

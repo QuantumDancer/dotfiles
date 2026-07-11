@@ -34,6 +34,10 @@ source "$ZSH/oh-my-zsh.sh"
 command -v mise >/dev/null && eval "$(mise activate zsh)"
 command -v starship >/dev/null && eval "$(starship init zsh)"
 
+# claude-code comes from mise, whose install dir it cannot write to; left on, its
+# self-updater fails on every start. `mise up claude-code` is the upgrade path.
+export DISABLE_AUTOUPDATER=1
+
 ZSH_AUTOSUGGESTIONS_STRATEGY="history"
 
 # --- editor -------------------------------------------------------------

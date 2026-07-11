@@ -14,6 +14,23 @@
     url = "https://github.com/tmux-plugins/tpm.git"
     refreshPeriod = "168h"
 
+# The plugins tpm loads. Cloned here rather than left to tpm's `prefix + I` so a
+# fresh machine comes up styled with no manual step -- .tmux.conf sources
+# catppuccin directly at startup, which fails outright if the clone is missing.
+# tpm still loads them at runtime and still drives `prefix + U`.
+[".tmux/plugins/tmux-sensible"]
+    type = "git-repo"
+    url = "https://github.com/tmux-plugins/tmux-sensible.git"
+    refreshPeriod = "168h"
+
+# catppuccin/tmux, in a directory named `tmux`: tpm names plugin dirs after the
+# repo, so this path is what .tmux.conf's `run ~/.tmux/plugins/tmux/catppuccin.tmux`
+# expects. Renaming it would break tpm's own bookkeeping.
+[".tmux/plugins/tmux"]
+    type = "git-repo"
+    url = "https://github.com/catppuccin/tmux.git"
+    refreshPeriod = "168h"
+
 [".oh-my-zsh/custom/plugins/zsh-autosuggestions"]
     type = "git-repo"
     url = "https://github.com/zsh-users/zsh-autosuggestions.git"
