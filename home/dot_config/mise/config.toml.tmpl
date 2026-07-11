@@ -17,6 +17,10 @@ neovim = "latest"
 # Runtimes (replace nvm / system go)
 node = "lts"
 go = "latest"
+# Pinned to the current stable minor (floats patch releases): tools that embed
+# python (mason builds black/isort venvs with it) need >= 3.10, and RHEL 9's
+# system python stays 3.9 forever.
+python = "3.14"
 
 # Terminal multiplexer — from mise, not the system repo, because RHEL ships an
 # old tmux (3.2a on RHEL 9) and the dotfiles assume a current one. Resolves to
