@@ -18,6 +18,12 @@ neovim = "latest"
 node = "lts"
 go = "latest"
 
+# Terminal multiplexer — from mise, not the system repo, because RHEL ships an
+# old tmux (3.2a on RHEL 9) and the dotfiles assume a current one. Resolves to
+# aqua:tmux/tmux-builds (prebuilt static binaries); the host must provide the
+# tmux-256color terminfo entry (ncurses-term on RHEL minimal).
+tmux = "latest"
+
 # Core terminal CLIs
 ripgrep = "latest"
 fd = "latest"
