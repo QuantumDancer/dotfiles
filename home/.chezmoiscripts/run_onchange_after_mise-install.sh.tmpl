@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Install the mise toolchain whenever the tool list changes.
+#
+# chezmoi writes config.toml but never runs `mise install`, so adding a tool
+# used to be a two-step dance (`chezmoi apply` then `mise install`). This script
+# closes that gap: `run_onchange_` scripts re-run only when their rendered
+# content changes, and the hash line below embeds the mise config's content --
+# edit the tool list and the hash changes, so chezmoi re-runs this on the next
+# apply. Touch nothing in the config and it stays dormant.
+#
+# `after_` orders it after regular files are applied, so the freshly written
+# config.toml is already on disk when mise reads it.
+#
+# mise config hash: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
+set -euo pipefail
+
+# Resolve mise directly rather than trusting PATH: during a fresh bootstrap this
+# runs from `chezmoi init --apply` before the shell's `mise activate` has put
+# ~/.local/bin on PATH, so `mise` may not yet be a resolvable command.
+mise="$(command -v mise || true)"
+[ -n "$mise" ] || mise="$HOME/.local/bin/mise"
+
+# install brings missing tools up to their configured versions. Deliberately no
+# `mise prune` here: pruning on every config change would silently delete any
+# version not currently declared -- including tools installed by a project's own
+# .mise.toml -- so removing installs stays a manual, deliberate `mise prune`.
+"$mise" install
