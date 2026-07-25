@@ -62,3 +62,17 @@ awscli = "latest"
 [settings]
 # Don't auto-adopt .nvmrc/.python-version unless a project explicitly opts in.
 idiomatic_version_file_enable_tools = []
+
+# Supply-chain cooldown: with nearly every tool above on "latest", a compromised
+# or broken release reaches us as soon as it clears the age floor. mise already
+# defaults to 24h; a week gives the upstream project (and the wider ecosystem)
+# realistic time to notice and yank a bad release before we install it.
+# See https://mise.jdx.dev/security.html#minimum-release-age
+minimum_release_age = "7d"
+
+# claude-code is exempt, which drops it *below* the 24h default to no delay at
+# all: it ships several releases a week and having the newest one is the point of
+# this setup, so even a one-day lag is the wrong trade-off here. Deliberately the
+# least-protected tool in this file. The shorthand matches the
+# aqua:anthropics/claude-code backend ID resolved in [tools].
+minimum_release_age_excludes = ["claude-code"]
