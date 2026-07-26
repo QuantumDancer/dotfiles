@@ -1,198 +1,41 @@
 ## Core Rules
 
-1. Ask, don't assume. If something about the current task is unclear — intent, architecture, requirements — ask before writing a single line.
-   Never make silent assumptions. When running unattended, pick the most reasonable interpretation, proceed, and record the assumption rather than blocking.
-2. Implement the simplest solution for simple problems, better solutions for harder problems. Do not over-engineer or add flexibility that isn't needed yet.
-3. Don't touch unrelated code. If you discover bugs, code smells, missing features, or workflow oddities outside the current task, log them in SESSION.md (see below) instead of fixing them — unless they block your progress.
-   Mention notable new entries in your summary so we can decide whether to address them as separate issues.
-4. Flag uncertainty explicitly. If unsure, ask (see rule 1), or run a small, localized, low-risk experiment and bring the hypothesis and results to me to discuss.
-   Confidence without certainty causes more damage than admitting a gap.
-5. I'm always open to better ways to do things — suggest alternatives, especially ones with lasting impact over tactical fixes.
+1. Ask, don't assume. If intent, architecture, or requirements are unclear, ask before writing a line.
+   Running unattended: pick the most reasonable reading, proceed, and record the assumption rather than blocking.
+2. Implement the simplest solution that fits the problem's difficulty. No flexibility that isn't needed yet.
+3. Don't touch unrelated code. Log incidental findings — bugs, smells, missing features, workflow oddities — in
+   SESSION.md instead of fixing them, unless they block progress. Mention notable new entries in your summary.
+4. Flag uncertainty explicitly. Ask, or run a small localized low-risk experiment and bring me the hypothesis
+   and the result. Confidence without certainty does more damage than admitting a gap.
+5. Suggest better approaches, especially lasting ones over tactical fixes.
 
-## General best practices
+SESSION.md is that deferred-work log and nothing else — never your accomplishments, never `git add`ed or committed.
 
+## Working preferences
+
+- Project-local `tmp/` for intermediate and comparison artifacts, not `/tmp` — discoverable, project-scoped, no permission prompts.
 - Run shell scripts through shellcheck.
-- Use `tmp/` (project-local) for intermediate files and comparison artifacts, not `/tmp`.
-  This keeps outputs discoverable and project-scoped, and avoids requesting permissions for `/tmp`.
+- `git mv` for files already tracked.
+- Commit messages: semantic title, prose wrapped (title included), non-obvious design or implementation trade-offs explained.
+  Backticks for types and short snippets; indented code blocks for a full line or more.
+- Documentation examples use realistic type and variable names.
+- Document code intentionally omitted that a reader would expect; TODO-comment nuances deliberately deferred.
+- Literate style: comments explain the why — business logic, design decisions, trade-offs — placed immediately before
+  the code they justify, with section headers for multi-phase algorithms. Prefer well-documented sequential inline code
+  over decomposition that only organizes the file. Skip it for obvious wrappers and simple utilities.
 
-### SESSION.md
+## Claude Code sandbox
 
-The deferred-work log for rule 3: concise descriptions of incidental findings (bugs, missing features, design smells, workflow oddities) that shouldn't be fixed inline.
-Writing them down is sufficient; **do not write your accomplishments into this file.**
-**Never add or commit this file with git.**
-
-## Git workflow
-
-Make sure you use git mv to move any files that are already checked into git.
-
-When writing commit messages, ensure that you explain any non-obvious trade-offs we've made in the design or implementation.
-
-Wrap any prose (but not code) in the commit message to match git commit conventions, including the title.
-Also, follow semantic commit conventions for the commit title.
-
-When you refer to types or very short code snippets, place them in backticks.
-When you have a full line of code or more than one line of code, put them in indented code blocks.
-
-## Documentation preferences
-
-### Documentation examples
-
-- Use realistic names for types and variables.
-
-## Code style preferences
-
-Document when you have intentionally omitted code that the reader might otherwise expect to be present.
-
-Add TODO comments for features or nuances that were deemed not important to add, support, or implement right away.
-
-### Literate Programming
-
-Apply literate programming principles to make code self-documenting and maintainable across all languages:
-
-#### Core Principles
-
-1. **Explain the Why, Not Just the What**: Focus on business logic, design decisions, and reasoning rather than describing what the code obviously does.
-
-2. **Top-Down Narrative Flow**: Structure code to read like a story with clear sections that build logically:
-
-   ```rust
-   // ==============================================================================
-   // Plugin Configuration Extraction
-   // ==============================================================================
-
-   // First, we extract plugin metadata from Cargo.toml to determine
-   // what files we need to build and where to put them.
-   ```
-
-3. **Inline Context**: Place explanatory comments immediately before relevant code blocks, explaining the purpose and any important considerations:
-
-   ```python
-   # Convert timestamps to UTC for consistent comparison across time zones.
-   # This prevents edge cases where local time changes affect rebuild detection.
-   utc_timestamp = datetime.utcfromtimestamp(file_stat.st_mtime)
-   ```
-
-4. **Avoid Over-Abstraction**: Prefer clear, well-documented inline code over excessive function decomposition when logic is sequential and context-dependent. Functions should serve genuine reusability, not just file organization.
-
-5. **Self-Contained When Practical**: Reduce dependencies on external shared utilities when the logic is straightforward enough to inline with good documentation.
-
-#### Implementation Benefits
-
-- **Maintainability**: Future developers can quickly understand both implementation and design rationale
-- **Debugging**: When code fails, documentation helps identify which logical step failed and why
-- **Knowledge Transfer**: Code serves as documentation of the problem domain, not just the solution
-- **Reduced Cognitive Load**: Readers don't need to mentally reconstruct the author's reasoning
-
-#### When to Apply
-
-Use literate programming for:
-
-- Complex algorithms with multiple phases or decision points
-- Code implementing business logic rather than simple plumbing
-- Code where the "why" is not immediately obvious from the "what"
-- Integration points between systems where context matters
-
-Avoid over-documenting:
-
-- Simple utility functions where intent is clear from the signature
-- Trivial getters/setters or obvious wrapper code
-- Code that's primarily syntactic sugar over well-known patterns
-
-## Claude Code sandbox insights
-
-### `!` (negation) workaround
-
-The sandbox has a [separate bug][cc-24136] where the bash `!` keyword
-(pipeline negation operator) is treated as a literal command name. The
-command after `!` **never executes**. This affects `if !`, `while !`,
-and bare `!`. The trailing-`;` workaround does **not** fix this.
-
-```sh
-# Broken:
-if ! some_command; then handle_failure; fi
-
-# Workaround — capture $?:
-some_command; rc=$?
-if [ "$rc" -ne 0 ]; then handle_failure; fi
-
-# Broken:
-while ! some_command; do sleep 1; done
-
-# Workaround — use `until`:
-until some_command; do sleep 1; done
-```
+- Bash `!` negation is broken ([cc-24136]) — the command after `!` never runs, and a trailing `;` does not help.
+  Use `cmd; rc=$?` instead of `if !`, and `until` instead of `while !`.
+- Never sandboxable, so always `dangerouslyDisableSandbox: true` and never chained with `|`/`&&`/`||`
+  (redirect output to a file, then process that file sandboxed): `git commit`, `gh`.
+- Never bypass the sandbox preemptively — attempt sandboxed first, bypass only after an actual permission error,
+  and name the error that triggered it. The commands above are the standing exceptions.
+- Sub-agent CLI testing: Write the input to a file in `tmp/` with the Write tool and pass it by path;
+  heredoc-and-pipe triggers interactive permission prompts.
 
 [cc-24136]: https://github.com/anthropics/claude-code/issues/24136
-
-### Unsandboxable commands
-
-The following commands can never be run successfully inside the sandbox,
-and thus must always be run with `dangerouslyDisableSandbox: true`.
-Because they cannot be run inside the sandbox, avoid running them in
-bash invocations with other commands (e.g., using `|`, `&&` or `||`).
-Instead, capture their output to a file, and then operate on that file
-in subsequent commands, which can then be sandboxed.
-
-Known unsandboxable commands are:
-
-- `gh`
-- `perf record` (but _not_ `perf script`)
-- `cargo add` (but _not_ `cargo remove`)
-
-### Sandbox discipline
-
-Never use `dangerouslyDisableSandbox` preemptively. Always attempt
-commands in the default sandbox first. Only bypass the sandbox after
-observing an actual permission error, and document which error
-triggered the bypass. The standing exceptions are the commands known to
-be unsandboxable.
-
-### Prefer temp files over pipes for sub-agent CLI testing
-
-When testing a CLI with ad-hoc input, write the input to a temp file
-in `tmp/` using the Write tool (not `cat`/`echo` with heredoc + `>`),
-then pass it by path rather than piping. This avoids interactive
-permission prompts in sub-agents.
-
-# Common failure modes when helping
-
-## The XY Problem
-
-The XY problem occurs when someone asks about their attempted solution (Y) instead of their actual underlying problem (X).
-
-### The Pattern
-
-1. User wants to accomplish goal X
-2. User thinks Y is the best approach to solve X
-3. User asks specifically about Y, not X
-4. Helper becomes confused by the odd/narrow request
-5. Time is wasted on suboptimal solutions
-
-### Warning Signs to Watch For
-
-- Focus on a specific technical method without explaining why
-- Resistance to providing broader context when asked
-- Rejecting alternative approaches outright
-- Questions that seem oddly narrow or convoluted
-- "How do I get the last 3 characters of a filename?" (when they want file extension)
-
-### How to Avoid It (As Helper)
-
-- **Ask probing questions**: "What are you trying to accomplish overall?"
-- **Request context**: "Can you explain the bigger picture?"
-- **Challenge assumptions**: "Why do you think this approach will work?"
-- **Offer alternatives**: "Have you considered...?"
-
-### Red Flags in User Requests
-
-- Very specific technical questions without motivation
-- Unusual or roundabout approaches to common problems
-- Dismissal of "why do you want to do that?" questions
-- Focus on implementation details before problem definition
-
-### Key Principle
-
-Always try to understand the fundamental problem (X) before helping with the proposed solution (Y). The user's approach may not be optimal or may indicate they're solving the wrong problem entirely.
 
 <!-- pilotfish:begin -->
 <!-- pilotfish v1.3.4 -->
