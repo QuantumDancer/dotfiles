@@ -35,6 +35,16 @@ tmux = "latest"
 # so .zshrc turns it off.
 claude-code = "latest"
 
+# Claude Code token/cost reporting, reading the local ~/.claude JSONL logs.
+# npm backend because upstream ships no binaries -- it is a Node CLI on npm only,
+# so aqua/ubi have nothing to fetch. Unlike `npm install -g`, mise's npm backend
+# installs into its own tool dir (installs/npm-ccusage/) rather than inside the
+# active node install, so the caveat noted for claude-code above does not apply:
+# a `node` bump leaves this in place. It still shebangs `#!/usr/bin/env node`, so
+# it needs the `node` above on PATH at run time -- fine here, never for a machine
+# that drops node from the toolchain.
+"npm:ccusage" = "latest"
+
 # Core terminal CLIs
 ripgrep = "latest"
 fd = "latest"
