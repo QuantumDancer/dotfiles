@@ -22,11 +22,29 @@ go = "latest"
 # system python stays 3.9 forever.
 python = "3.14"
 
-# Terminal multiplexer — from mise, not the system repo, because RHEL ships an
-# old tmux (3.2a on RHEL 9) and the dotfiles assume a current one. Resolves to
-# aqua:tmux/tmux-builds (prebuilt static binaries); the host must provide the
-# tmux-256color terminfo entry (ncurses-term on RHEL minimal).
+# Terminal multiplexers. Both are always installed: the `multiplexer` chezmoi
+# variable picks which one Ctrl-f drives per machine, and the other stays a
+# working fallback rather than something a re-provision has to restore.
+#
+# tmux from mise, not the system repo, because RHEL ships an old tmux (3.2a on
+# RHEL 9) and the dotfiles assume a current one. Resolves to aqua:tmux/tmux-builds
+# (prebuilt static binaries); the host must provide the tmux-256color terminfo
+# entry (ncurses-term on RHEL minimal).
 tmux = "latest"
+
+# herdr, the default of the two: same keymap (see ~/.config/herdr/config.toml),
+# but it tracks agent panes, which is what this VM mostly runs. Also from mise —
+# it ships no distro packages at all.
+herdr = "latest"
+
+# Not for writing Rust -- it is here purely as a *build* dependency of herdr's
+# plugin system. `herdr plugin install` clones a plugin repo and runs the build
+# step from its herdr-plugin.toml, and the plugins we use (third774/last-workspace)
+# are Rust with a `cargo build --release` step. Without cargo on PATH the install
+# fails and the keybinding silently does nothing. Drop this line if upstream ever
+# lands last_tab/last_workspace in core (see SESSION.md) and the plugins become
+# unnecessary, or if a machine drops herdr entirely.
+rust = "latest"
 
 # The coding agent the dev VM exists to run. Resolves to aqua:anthropics/claude-code
 # (a native binary), deliberately not npm:@anthropic-ai/claude-code: npm globals live

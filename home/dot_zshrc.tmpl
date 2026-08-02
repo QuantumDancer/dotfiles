@@ -58,8 +58,13 @@ export FZF_DEFAULT_OPTS=" \
 --color=selected-bg:#494d64,border:#6e738d,label:#cad3f5 \
 --multi"
 
-# tmux-sessionizer on Ctrl-f
-bindkey -s ^f "tmux-sessionizer\n"
+{{ $multiplexer := get . "multiplexer" | default "herdr" -}}
+# Sessionizer on Ctrl-f. Which multiplexer is behind it is a per-machine choice,
+# asked once by `chezmoi init`; both scripts stay on PATH regardless, so the other
+# one is always a command away. `get`, not a bare `.multiplexer`: chezmoi renders
+# with missingkey=error, and a machine provisioned before this key existed would
+# fail every apply until re-initialised.
+bindkey -s ^f "{{ $multiplexer }}-sessionizer\n"
 
 {{- if eq .chezmoi.os "darwin" }}
 
@@ -75,8 +80,8 @@ export GPG_TTY=$(tty)
 # shell start.
 command -v gpgconf >/dev/null && gpgconf --launch gpg-agent
 
-# Ensure truecolor when not already inside tmux.
-if [[ -z $TMUX ]]; then
+# Ensure truecolor when not already inside a multiplexer that sets it itself.
+if [[ -z $TMUX && -z ${HERDR_PANE_ID:-} ]]; then
   export TERM=xterm-256color
 fi
 {{- end }}

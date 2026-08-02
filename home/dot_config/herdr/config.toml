@@ -1,0 +1,131 @@
+# ~/.config/herdr/config.toml — managed by chezmoi.
+#
+# herdr is the default multiplexer; tmux stays installed and configured as the
+# fallback, and either can be picked per machine (the `multiplexer` chezmoi
+# variable). This file ports the ~/.tmux.conf keymap, so switching a machine back
+# costs no muscle memory. Object model: a herdr *workspace* is a tmux session, a
+# *tab* is a tmux window, a *pane* is a pane. (herdr's own "session" is a whole
+# persistent server namespace — not involved here.)
+#
+# Only deviations from herdr's defaults are set. Already matching out of the box,
+# so deliberately absent below:
+#   prefix+h/j/k/l  focus pane           = tmux's `bind h/j/k/l select-pane`
+#   prefix+minus    split stacked        = tmux's `bind - split-window -v`
+#   mouse capture   on                   = tmux's `set -g mouse on`
+#   the sidebar lists workspaces         = tmux's session-name status-right
+#
+# No tmux equivalent exists for these, and inventing a near-miss binding would be
+# worse than the gap:
+#   `bind -r H/J/K/L resize-pane`— herdr resizes through a mode: prefix+r, then hjkl.
+#   copy-mode v/V/C-v/y/Escape   — copy mode (prefix+[) is built in and already
+#                                  vi-flavoured, but its keys are not rebindable.
+#
+# The two MRU bindings (`bind-key C-a last-window`, `bind-key L switch-client -l`)
+# have no *core* herdr equivalent either: herdr ships `last_pane` but no `last_tab`
+# and no `last_workspace`, and previous/next_tab and previous/next_workspace are
+# ordered, not most-recently-used. Both are long-standing upstream requests that the
+# maintainer has deferred to the plugin system (discussions #588 and #665 — see
+# SESSION.md). They are therefore bound at the bottom of this file as plugin actions
+# rather than under [keys], which only accepts herdr's own canonical action names.
+#
+# Not a .tmpl, unlike dot_tmux.conf.tmpl: the only OS-dependent thing there was the
+# pbcopy/wl-copy branch, and herdr owns the clipboard itself (ui.copy_on_select).
+
+# herdr writes this key into this very file after its first-run notification setup,
+# which chezmoi then reverts on the next apply — so it is declared here instead, and
+# the file stays chezmoi's alone. Absent means true, so dropping it re-triggers the
+# onboarding screen on every fresh machine. Must stay above the first table header.
+onboarding = false
+
+[theme]
+# tmux runs catppuccin macchiato; herdr ships only mocha (`catppuccin`) and latte.
+name = "catppuccin"
+
+[ui]
+# tmux numbers windows and never asks; herdr prompts for a tab name first. Off, so
+# prefix+c creates immediately and prefix+1..9 stays the way tabs get addressed.
+prompt_new_tab_name = false
+
+[keys]
+prefix = "ctrl+a"
+
+# herdr names the divider, tmux names the result — so herdr's "vertical" split is
+# tmux's `|` (side by side), not its `-`. Not a typo.
+#
+# The literal `|`, not the name `pipe`: herdr's own help text advertises named
+# punctuation, but its key parser rejects both `pipe` and `bar` (0.7.5) and
+# silently disables the binding — `herdr config check` is the only thing that says so.
+split_vertical = "prefix+|"
+
+# tmux's `bind s choose-tree`. This takes prefix+s off `settings`, which has no
+# tmux counterpart to collide with, so settings moves out of the way.
+workspace_picker = "prefix+s"
+settings = "prefix+shift+s"
+
+previous_tab = "prefix+ctrl+h"
+next_tab = "prefix+ctrl+l"
+
+# Inside the picker, j/k walks the workspace list — tmux's choose-tree, not herdr's
+# arrow-key default. That key pair is stock-bound to pane up/down in the same mode,
+# and `herdr config check` does *not* flag the collision (it validates key syntax,
+# not overlap), so pane up/down is moved onto the arrows by hand. h/l keep pane
+# left/right; the left/right arrows are permanently aliased to them regardless.
+navigate_workspace_up = "k"
+navigate_workspace_down = "j"
+navigate_pane_up = "up"
+navigate_pane_down = "down"
+
+# The sessionizer, reachable two ways on purpose: prefix+f mirrors tmux, and the
+# direct ctrl+f is the same keypress a bare shell answers with `bindkey -s ^f`,
+# so one key works everywhere — including in a pane running nvim or claude, which
+# swallows the keypress before zsh's binding ever sees it. ctrl+f is unclaimed in
+# herdr's defaults, so nothing is displaced.
+#
+# type must be "popup": "shell" runs detached with no TTY, and fzf needs one.
+[[keys.command]]
+key = "ctrl+f"
+type = "popup"
+command = "herdr-sessionizer"
+description = "sessionizer"
+width = "60%"
+height = "60%"
+
+[[keys.command]]
+key = "prefix+f"
+type = "popup"
+command = "herdr-sessionizer"
+description = "sessionizer"
+width = "60%"
+height = "60%"
+
+# tmux's `bind-key L switch-client -l`, restored by third774/herdr-last-workspace.
+# Installed with `herdr plugin install third774/herdr-last-workspace` (which builds
+# it from source — hence `rust` in the mise manifest), so this binding is dead on a
+# machine where that install has not run. The plugin tracks stable workspace *IDs*,
+# not indices, so it survives reordering.
+#
+# shift+l, matching tmux, and not the bare prefix+l this replaced in the first draft:
+# prefix+l is herdr's stock focus_pane_right, and the h/j/k/l pane-focus block is
+# exactly the tmux parity this file is trying to keep. `herdr config check` accepts
+# the collision silently — it validates key syntax, not overlap.
+[[keys.command]]
+key = "prefix+shift+l"
+type = "plugin_action"
+command = "third774.last-workspace.toggle"
+description = "last workspace"
+
+# tmux's `bind-key C-a last-window`. Deliberately prefix+a and not the literal
+# prefix+ctrl+a: herdr reserves a doubled prefix to send a literal prefix keypress
+# (tmux's send-prefix), and rejects the binding outright —
+#   reserved keybinding: ... uses keys.prefix as the prefix-mode key
+# prefix+a is unclaimed in herdr's defaults, so it is the closest free key.
+#
+# Commented out until the plugin behind it exists: no plugin covers the *tab* case
+# (see ~/Code/herdr-last-tab), and herdr disables a keys.command entry pointing at an
+# unknown plugin action anyway. Uncomment once herdr-last-tab is installed, and
+# re-check the action ID below against its herdr-plugin.toml — it is a placeholder.
+# [[keys.command]]
+# key = "prefix+a"
+# type = "plugin_action"
+# command = "local.last-tab.toggle"
+# description = "last tab"

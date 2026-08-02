@@ -1,5 +1,9 @@
 {{- $email := promptStringOnce . "email" "Git email" "benjamin@dierottlers.de" -}}
 {{- $signCommits := promptBoolOnce . "signCommits" "Sign git commits on this machine (needs an ssh signing key at ~/.ssh/id_ed25519)" -}}
+{{- /* Both multiplexers are installed and configured either way -- this only
+       decides which sessionizer Ctrl-f launches. Switching a machine later is an
+       edit to ~/.config/chezmoi/chezmoi.toml plus `chezmoi apply`, no re-init. */ -}}
+{{- $multiplexer := promptChoiceOnce . "multiplexer" "Default multiplexer (Ctrl-f sessionizer)" (list "herdr" "tmux") "herdr" -}}
 
 # Persist the source dir so plain `chezmoi apply`/`diff` (and re-runs after
 # bootstrap) use this repo. Without it, chezmoi's --source flag is not saved and
@@ -9,3 +13,4 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
 [data]
     email = {{ $email | quote }}
     signCommits = {{ $signCommits }}
+    multiplexer = {{ $multiplexer | quote }}

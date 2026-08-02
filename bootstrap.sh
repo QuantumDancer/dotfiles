@@ -6,7 +6,8 @@
 # Any extra arguments are forwarded to `chezmoi init`, which is how you drive it
 # non-interactively, e.g. for a smoke test:
 #   ./bootstrap.sh --no-tty --promptString "Git email=you@example.com" \
-#                  --promptBool "Sign git commits...=true"
+#                  --promptBool "Sign git commits...=true" \
+#                  --promptChoice "Default multiplexer (Ctrl-f sessionizer)=herdr"
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

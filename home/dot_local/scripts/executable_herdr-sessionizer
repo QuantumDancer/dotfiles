@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# herdr-sessionizer — fuzzy-pick a project directory and open/focus a herdr
+# workspace named after it. The herdr counterpart of tmux-sessionizer; both are
+# installed on every machine, and Ctrl-f is bound to one of them per host.
+#
+# The two deliberately share ~/.config/tmux-sessionizer/paths so the project list
+# cannot drift (the tmux- prefix is now a misnomer — see SESSION.md), and the
+# root-discovery block below is a hand-kept copy of its sibling's. That
+# duplication is the deliberate price of each script staying readable end to end:
+# everything after it differs, since herdr addresses workspaces by opaque id
+# through a socket API and tmux addresses sessions by name.
+#
+# Not `set -e`: a cancelled fzf and a no-match jq are both expected exits.
+set -uo pipefail
+
+paths_file="${XDG_CONFIG_HOME:-$HOME/.config}/tmux-sessionizer/paths"
+
+if [[ $# -eq 1 ]]; then
+    selected=$1
+else
+    if [[ -f $paths_file ]]; then
+        # See tmux-sessionizer for why this is a loop and not `mapfile`: macOS is
+        # frozen on bash 3.2, where that builtin does not exist.
+        roots=()
+        while IFS= read -r root; do
+            roots+=("$root")
+        done < <(grep -vE '^\s*$' "$paths_file" | sed "s|^~|$HOME|")
+    else
+        roots=("$HOME/Code")
+    fi
+    selected=$(find "${roots[@]}" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | fzf)
+fi
+
+[[ -z $selected ]] && exit 0
+
+label=$(basename "$selected" | tr . _)
+
+# Everything below goes through herdr's socket API, which needs a running server.
+# Unlike tmux, the CLI will not start one implicitly, and bare `herdr` spawns the
+# daemon *and then blocks as the TUI* — leaving no window to create the workspace
+# in between. So start the daemon ourselves and wait for it to answer.
+if ! herdr status server >/dev/null 2>&1; then
+    setsid herdr server >/dev/null 2>&1 &
+    for _ in $(seq 50); do
+        herdr status server >/dev/null 2>&1 && break
+        sleep 0.1
+    done
+fi
+
+# herdr has no `has-session`: workspaces carry an opaque id (w1, w2, ...) plus a
+# human label, so the label is what we match on and the id is what we act on.
+id=$(herdr workspace list 2>/dev/null |
+    jq -r --arg label "$label" \
+        'first(.result.workspaces[] | select(.label == $label) | .workspace_id) // empty')
+
+if [[ -n $id ]]; then
+    herdr workspace focus "$id" >/dev/null
+else
+    herdr workspace create --cwd "$selected" --label "$label" --focus >/dev/null
+fi
+
+# Outside herdr we have only talked to the daemon so far, so attach to put the
+# freshly focused workspace on screen. Inside a pane (or the ctrl+h popup) a
+# client is already attached and the focus call above was the whole job.
+[[ -z ${HERDR_PANE_ID:-} ]] && exec herdr
+
+exit 0
