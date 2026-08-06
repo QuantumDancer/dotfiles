@@ -7,3 +7,7 @@ mise.local.toml
 *.local.md
 
 .DS_Store
+
+# Agent stuff
+tmp
+*local.md
