@@ -7,8 +7,9 @@
 # *tab* is a tmux window, a *pane* is a pane. (herdr's own "session" is a whole
 # persistent server namespace — not involved here.)
 #
-# Only deviations from herdr's defaults are set. Already matching out of the box,
-# so deliberately absent below:
+# Only deviations from herdr's defaults are set, except where a default has to be
+# pinned to stop herdr writing it back (called out at the key itself). Already
+# matching out of the box, so deliberately absent below:
 #   prefix+h/j/k/l  focus pane           = tmux's `bind h/j/k/l select-pane`
 #   prefix+minus    split stacked        = tmux's `bind - split-window -v`
 #   mouse capture   on                   = tmux's `set -g mouse on`
@@ -45,6 +46,14 @@ name = "catppuccin"
 # tmux numbers windows and never asks; herdr prompts for a tab name first. Off, so
 # prefix+c creates immediately and prefix+1..9 stays the way tabs get addressed.
 prompt_new_tab_name = false
+
+# The one key here that is *not* a deviation: "spaces" (agents grouped by space, vs.
+# "priority", an attention queue) is already herdr's default. It is declared anyway
+# for the same reason as `onboarding` above — the sidebar's sort control writes the
+# active value back into this file, so leaving the key out means herdr re-adds it and
+# the next `chezmoi apply` strips it again, indefinitely. Pinning the default changes
+# no behaviour and keeps that loop out of `chezmoi diff`.
+agent_panel_sort = "spaces"
 
 [keys]
 prefix = "ctrl+a"
