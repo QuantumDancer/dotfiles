@@ -39,11 +39,16 @@ herdr = "latest"
 
 # Not for writing Rust -- it is here purely as a *build* dependency of herdr's
 # plugin system. `herdr plugin install` clones a plugin repo and runs the build
-# step from its herdr-plugin.toml, and the plugins we use (third774/last-workspace)
-# are Rust with a `cargo build --release` step. Without cargo on PATH the install
-# fails and the keybinding silently does nothing. Drop this line if upstream ever
-# lands last_tab/last_workspace in core (see SESSION.md) and the plugins become
-# unnecessary, or if a machine drops herdr entirely.
+# step from its herdr-plugin.toml, and third774/last-workspace's step is a
+# `cargo build --release`. Without cargo on PATH that install fails and
+# prefix+shift+l silently does nothing.
+#
+# It is that one plugin holding this line, not the plugin system in general: a
+# build step may do anything, and quantumdancer.last-tab's downloads a prebuilt
+# binary verified against a published sha256, so it installs on a machine with no
+# Rust at all. Drop this line if upstream lands last_workspace in core (see
+# SESSION.md) and that plugin goes away, or if a machine drops herdr entirely --
+# last_tab landing in core would not on its own free anything here.
 rust = "latest"
 
 # The coding agent the dev VM exists to run. Resolves to aqua:anthropics/claude-code

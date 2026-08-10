@@ -129,12 +129,18 @@ description = "last workspace"
 #   reserved keybinding: ... uses keys.prefix as the prefix-mode key
 # prefix+a is unclaimed in herdr's defaults, so it is the closest free key.
 #
-# Commented out until the plugin behind it exists: no plugin covers the *tab* case
-# (see ~/Code/herdr-last-tab), and herdr disables a keys.command entry pointing at an
-# unknown plugin action anyway. Uncomment once herdr-last-tab is installed, and
-# re-check the action ID below against its herdr-plugin.toml — it is a placeholder.
-# [[keys.command]]
-# key = "prefix+a"
-# type = "plugin_action"
-# command = "local.last-tab.toggle"
-# description = "last tab"
+# The plugin behind it is quantumdancer.last-tab, which covers the *tab* case no
+# existing plugin did. Installed with `herdr plugin install QuantumDancer/herdr-last-tab`,
+# so this binding is dead on a machine where that install has not run — inert rather than
+# broken, because herdr disables a keys.command pointing at an unknown plugin action
+# instead of refusing the config. The action ID below is verified against its
+# herdr-plugin.toml, not guessed.
+#
+# Unlike last-workspace above, that install needs no Rust toolchain: the build step
+# downloads a prebuilt binary and verifies it against a published sha256 before
+# installing it. So this plugin is not one of the reasons `rust` is in the mise manifest.
+[[keys.command]]
+key = "prefix+a"
+type = "plugin_action"
+command = "quantumdancer.last-tab.toggle"
+description = "last tab"
