@@ -66,6 +66,15 @@ prefix = "ctrl+a"
 # silently disables the binding — `herdr config check` is the only thing that says so.
 split_vertical = "prefix+|"
 
+# tmux's `bind-key d detach-client`. herdr calls the action `detach` and stocks it on
+# prefix+q, but it does exactly what tmux's does — drops the client while the server and
+# every workspace keep running — so this is a rename, not a behaviour change. The freed
+# prefix+q is deliberately left unbound: tmux has nothing on it either.
+#
+# Not to be confused with herdr's stock prefix+shift+d, `close_workspace`, which is a
+# separate chord and stays where it is.
+detach = "prefix+d"
+
 # tmux's `bind s choose-tree`. This takes prefix+s off `settings`, which has no
 # tmux counterpart to collide with, so settings moves out of the way.
 workspace_picker = "prefix+s"
