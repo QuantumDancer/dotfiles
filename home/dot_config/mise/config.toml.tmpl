@@ -90,6 +90,12 @@ k9s = "latest"
 k3d = "latest"
 kind = "latest"
 
+# Talos / Sidero Omni.
+# talosctl is pinned to the minor the homelab clusters run.
+# omnictl floats on "latest" because it talks to Omni SaaS, which always runs the newest release.
+talosctl = "1.13"
+omnictl = "latest"
+
 # Cloud
 awscli = "latest"
 "aqua:awslabs/eks-node-viewer" = "latest"
