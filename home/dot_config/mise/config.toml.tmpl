@@ -95,6 +95,11 @@ kind = "latest"
 # omnictl floats on "latest" because it talks to Omni SaaS, which always runs the newest release.
 talosctl = "1.13"
 omnictl = "latest"
+# kubectl OIDC plugin, invoked by Omni-issued kubeconfigs as
+# `kubectl oidc-login get-token`. Resolves to aqua:int128/kubelogin, which
+# installs the binary as kubectl-oidc_login -- not to be confused with
+# Azure/kubelogin (registered separately as azure-kubelogin).
+kubelogin = "latest"
 
 # Cloud
 awscli = "latest"
